@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+from __future__ import division # division returns a floating point number
+
 import numpy as np
 import cv2
 
@@ -62,7 +66,7 @@ CocoColors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255
 
 class Humans():
 
-    def __init__(self, humans, frame):
+    def __init__(self, humans, frame, K=None):
         self.humans = humans.humans # List of Human objects
         self.n_humans = len(self.humans) # Number of detected humans
         
@@ -77,6 +81,8 @@ class Humans():
         self.image = frame
         self.image_h = frame.shape[0]
         self.image_w = frame.shape[1]
+
+        self.K = K # Intrinsic matrix of the camera
         
         if self.n_humans != 0:
             self.fill_pairs_components()
@@ -187,13 +193,14 @@ class Humans():
 
 class Calibrator():
     
-    def __init__(self, K=None, dist=None):
+    def __init__(self, K=None, dist=None, ret=None):
         '''
         Calibration parameters (self.K and self.dist) could be given when constructing the class.
         Otherwise, calculate these parameters using self.calibrate().
         '''
         self.K = K # 3x3 camera matrix: intrinsic parameters
         self.dist = dist # Distortion coefficients (k1, k2, p1, p2)
+        self.error = error # RMS reprojection error of the calibration
     
     @staticmethod
     def load_images(filenames):
@@ -237,7 +244,6 @@ class Calibrator():
         Given a list of filenames and the chessboard size, calculate the calibration parameters
         (self.K and self.dist)
         '''
-        
         images = self.load_images(filenames)
         
         valid_corners = self.get_chessboard_corners(images, board_size)
@@ -251,9 +257,16 @@ class Calibrator():
         imgpoints = np.array([corner[:,0,:] for corner in valid_corners], dtype=np.float32)
         im_shape = images[0].shape[:2]
         
-        self.ret, self.K, self.dist, vecR, vecT = cv2.calibrateCamera(objpoints, imgpoints, im_shape,
+        self.error, self.K, self.dist, vecR, vecT = cv2.calibrateCamera(objpoints, imgpoints, im_shape,
                                                                       self.K, self.dist,
                                                                       flags=cv2.CALIB_ZERO_TANGENT_DIST)
+
+
+    def save_paramaters(self, directory='', K_file='K', dist_file='dist', error_file='error'):
+        assert self.K is not None and self.dist is not None and self.error is not None, "Error: calibration parameters not found."
+        np.save(os.path.join(directory, K_file), self.K)
+        np.save(os.path.join(directory, dist_file), self.dist)
+        np.save(os.path.join(directory, error_file), self.error)
 
 
     def undistort(self, image):
