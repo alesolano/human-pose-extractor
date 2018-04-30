@@ -189,6 +189,40 @@ class Humans():
         return looking_msg
 
 
+    def get_position(self, human_idx):
+        '''
+        Get the 3D position of a given human's nose,
+        transforming a point 'm' from pixel coordinate system [u, v]
+        to a point 'M' in camera 3D coordinate system [X, Y, Z].
+        '''
+
+        assert self.K is not None, "Error: intrinsic matrix K not defined"
+
+        u, v = self.parts_coords[human_idx][CocoPair.Nose.value]
+        m = np.array([u, v, 1]) # Homogeneous coordinates of the nose
+
+        # Extracting camera parameters
+        x0 = self.K[0, 2]
+        y0 = self.K[1, 2]
+        f = self.K[0, 0]
+
+        # Matrix from 'm' to 'M/Z'.
+        K_inv = np.array([[0, 1/f, -x0/f],
+                        [-1/f, 0, y0/f],
+                        [0, 0, 1]])
+
+        # Altenative way of obtaining K_inv
+        #u, v = v, u
+        #K_inv = np.linalg.inv(K)
+        #K_inv[1] *= -1
+
+        Z = self.get_distance_to_camera(human_idx)
+
+        M = Z*K_inv.dot(m)
+
+        return M
+
+
 
 
 class Calibrator():

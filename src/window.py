@@ -18,6 +18,8 @@ topic = 'frame'
 #topic = 'usb_cam/image_raw'
 
 if topic == 'usb_cam/image_raw':
+    # TODO: check if path is reachable this way
+    # Other option: set K and dist as ROS parameters.
     K = np.load('../calibration/K.npy')
     dist = np.load('../calibration/dist.npy')
     calibrator = Calibrator(K, dist)
