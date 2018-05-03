@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from __future__ import division # division returns a floating point number
+import os
 
 import numpy as np
 import cv2
@@ -295,7 +296,7 @@ class Humans():
 
 class Calibrator():
     
-    def __init__(self, K=None, dist=None, ret=None):
+    def __init__(self, K=None, dist=None, error=None):
         '''
         Calibration parameters (self.K and self.dist) could be given when constructing the class.
         Otherwise, calculate these parameters using self.calibrate().
