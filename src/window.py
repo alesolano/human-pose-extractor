@@ -45,7 +45,7 @@ def callback_humans(human_array):
     frame = frames_buffer[0][1]
     
     humans = Humans(human_array, frame)
-    frame_humans = humans.draw(draw_position=True, draw_orientation=False)
+    frame_humans = humans.draw(draw_position=False, draw_orientation=True)
 
     print "Processing time: {:.4f}".format(time.time() - t)
 

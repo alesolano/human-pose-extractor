@@ -50,12 +50,12 @@ class CocoPair(Enum):
     LShoulderEar = 18
 
 CocoPairs = [
-    (1, 2), (1, 5), (2, 3), (3, 4), (5, 6), (6, 7), (1, 8), (8, 9), (9, 10), (1, 11),
-    (11, 12), (12, 13), (1, 0), (0, 14), (14, 16), (0, 15), (15, 17), (2, 16), (5, 17)
+    (1, 2), (1, 5), (2, 3), (3, 4), (5, 6), (6, 7), (1, 8), (8, 9), (9, 10), (1, 11), #10
+    (11, 12), (12, 13), (1, 0), (0, 14), (14, 16), (0, 15), (15, 17), (2, 16), (5, 17) # 19
 ]   # = 19
 CocoPairsRender = CocoPairs[:-2]
 CocoPairsNetwork = [
-    (12, 13), (20, 21), (14, 15), (16, 17), (22, 23), (24, 25), (0, 1), (2, 3), (4, 5),
+    (12, 13), (20, 21), (14, 15), (16, 17), (22, 23), (24, 25), (0, 1), (2, 3), (4, 5), #9
     (6, 7), (8, 9), (10, 11), (28, 29), (30, 31), (34, 35), (32, 33), (36, 37), (18, 19), (26, 27)
  ]  # = 19
 
@@ -152,10 +152,23 @@ class Humans():
                         print "Neck undetected for human {}".format(human_idx)
             
             if draw_orientation:
-                coords = self.parts_coords[human_idx][CocoPart.Nose.value]
-                image_drawn = cv2.putText(image_drawn, self.left_or_right(human_idx),
-                    (int(coords[0]-60), int(coords[1]-160)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5)
+                #coords = self.parts_coords[human_idx][CocoPart.Nose.value]
+                #image_drawn = cv2.putText(image_drawn, self.left_or_right(human_idx),
+                #    (int(coords[0]-60), int(coords[1]-160)),
+                #    cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5)
+                try:
+                    body_angle = self.get_body_angle(human_idx)
+                    head_angle = self.get_head_angle(human_idx)
+                    coords = self.parts_coords[human_idx][CocoPart.Nose.value]
+                    image_drawn = cv2.putText(image_drawn, "Body: {:.2f}".format(body_angle),
+                        (int(coords[0]-120), int(coords[1]-100)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5)
+                    image_drawn = cv2.putText(image_drawn, "Head: {:.2f}".format(head_angle),
+                        (int(coords[0]-120), int(coords[1]-60)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5)
+                except Exception as e:
+                    print e
+
 
         return image_drawn
     
@@ -176,17 +189,24 @@ class Humans():
     
     def left_or_right(self, human_idx):
         detected_parts = self.parts_coords[human_idx].keys()
-        
-        if CocoPart.REar.value not in detected_parts \
-            and CocoPart.LEar.value in detected_parts:
-            looking_msg = "right"
-        elif CocoPart.REar.value  in detected_parts \
-            and CocoPart.LEar.value not in detected_parts:
-            looking_msg = "left"
-        else:
-            looking_msg = "front"
 
-        return looking_msg
+        REye = CocoPart.REye.value in detected_parts
+        LEye = CocoPart.LEye.value in detected_parts
+        REar = CocoPart.REar.value in detected_parts
+        LEar = CocoPart.LEar.value in detected_parts
+
+        if not REye:
+            angle = 80.
+        elif not LEye:
+            angle = -80.
+        elif REye and not REar:
+            angle = 30
+        elif LEye and not LEar:
+            angle = -30
+        else:
+            angle = 0.
+
+        return angle
 
 
     def get_position(self, human_idx):
@@ -221,6 +241,54 @@ class Humans():
         M = Z*K_inv.dot(m)
 
         return M
+
+
+    def get_head_angle(self, human_idx):
+        # TODO: change angle estimation procedure depending on the distance.
+        # If the person is far, shortest links (those located in the head) have very low resolution.
+        # If the person is close, longest links are not
+
+        # TODO: get real value of neck_k
+        neck_k = 2
+        neck_angle = self.pairs_components[human_idx][CocoPair.Neck.value][1]
+        neck_angle = -neck_k*np.rad2deg(neck_angle + np.pi/2)
+        #print "Neck angle: {}".format(neck_angle)
+
+        bins = np.array([-120, -90, -60, -30, 0, 30, 60, 90, 120])
+        neck_angle = bins[np.digitize(neck_angle - 15, bins)]
+        return neck_angle
+
+
+    def get_body_angle(self, human_idx):
+        # TODO: change angle estimation procedure depending on the distance.
+        # If the person is far, shortest links (those located in the head) have very low resolution.
+        # If the person is close, longest links are not
+
+        x_l, y_l = self.parts_coords[human_idx][CocoPart.LShoulder.value]
+        x_r, y_r = self.parts_coords[human_idx][CocoPart.RShoulder.value]
+        back_mag = np.linalg.norm([x_l - x_r, y_l - y_r])
+        neck_mag = self.pairs_components[human_idx][CocoPair.Neck.value][0]
+
+        # TODO: get real value of back_k
+        back_k = 1.25
+        neck_angle = self.get_head_angle(human_idx)
+        back_angle = -np.sign(neck_angle+0.1)*np.rad2deg(back_mag/neck_mag - back_k*np.pi/2)
+
+        bins = np.array([-120, -90, -60, -30, 0, 30, 60, 90, 120])
+        back_angle = bins[np.digitize(back_angle - 15, bins)]
+
+        return back_angle
+
+
+    def get_head_orientation(self, human_idx):
+        # Orientation of the human head with respecto to the camera
+        H = np.array([0, get_head_angle(human_idx), 0])
+        return H
+
+    def get_body_orientation(self, human_idx):
+        # Orientation of the human body with respecto to the camera
+        B = np.array([0, get_body_angle(human_idx), 0])
+        return B
 
 
 
