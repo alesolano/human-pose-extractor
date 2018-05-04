@@ -67,7 +67,7 @@ CocoColors = [[255, 0, 0], [255, 85, 0], [255, 170, 0], [255, 255, 0], [170, 255
 
 class Humans():
 
-    def __init__(self, humans, frame, K=None):
+    def __init__(self, humans, frame, header, K=None):
         self.humans = humans.humans # List of Human objects
         self.n_humans = len(self.humans) # Number of detected humans
         
@@ -82,6 +82,8 @@ class Humans():
         self.image = frame
         self.image_h = frame.shape[0]
         self.image_w = frame.shape[1]
+
+        self.header = header
 
         self.K = K # Intrinsic matrix of the camera
         
@@ -170,7 +172,6 @@ class Humans():
                 except Exception as e:
                     print e
 
-
         return image_drawn
     
     
@@ -219,7 +220,7 @@ class Humans():
 
         assert self.K is not None, "Error: intrinsic matrix K not defined"
 
-        u, v = self.parts_coords[human_idx][CocoPair.Nose.value]
+        u, v = self.parts_coords[human_idx][CocoPart.Nose.value]
         m = np.array([u, v, 1]) # Homogeneous coordinates of the nose
 
         # Extracting camera parameters
@@ -283,13 +284,45 @@ class Humans():
 
     def get_head_orientation(self, human_idx):
         # Orientation of the human head with respecto to the camera
-        H = np.array([0, get_head_angle(human_idx), 0])
+        H = np.array([0, np.deg2rad(self.get_head_angle(human_idx)), 0])
         return H
 
     def get_body_orientation(self, human_idx):
         # Orientation of the human body with respecto to the camera
-        B = np.array([0, get_body_angle(human_idx), 0])
+        B = np.array([0, np.deg2rad(self.get_body_angle(human_idx)), 0])
         return B
+
+
+    def get_poses(self):
+        from tf.transformations import quaternion_from_euler
+        from geometry_msgs.msg import Pose, PoseArray
+        posearray_msg = PoseArray()
+        posearray_msg.header = self.header
+        for human_idx, human in enumerate(self.humans):
+            pose_msg = Pose()
+
+            try:
+                P = self.get_position(human_idx)
+            except:
+                continue
+
+            #B = self.get_body_orientation(human_idx)
+            #QB = quaternion_from_euler(*B)
+
+            H = self.get_head_orientation(human_idx)
+            QH = quaternion_from_euler(*H)
+
+            pose_msg.position.x = P[0]
+            pose_msg.position.y = P[1]
+            pose_msg.position.z = P[2]
+            pose_msg.orientation.x = QH[0]
+            pose_msg.orientation.y = QH[1]
+            pose_msg.orientation.z = QH[2]
+            pose_msg.orientation.w = QH[3]
+
+            posearray_msg.poses.append(pose_msg)
+
+        return posearray_msg
 
 
 

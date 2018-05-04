@@ -8,6 +8,7 @@ import cv2, cv_bridge
 rospy.init_node('camera')
 
 pub = rospy.Publisher('frame', Image, queue_size=1)
+#pub = rospy.Publisher('usb_cam/image_raw', Image, queue_size=1)
 
 bridge = cv_bridge.CvBridge()
 
