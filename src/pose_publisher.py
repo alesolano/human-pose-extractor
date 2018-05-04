@@ -14,12 +14,10 @@ bridge = cv_bridge.CvBridge()
 
 frames_buffer = []
 
-# TODO: set K and dist as ROS parameters.
-K = np.array(rospy.get_param('/usb_cam/calib/K'))
-dist = np.array(rospy.get_param('/usb_cam/calib/dist'))
-# TODO: numpy load is another option, but I don't know how to deal with paths
-#K = np.load('calibration/K.npy')
-#dist = np.load('calibration/dist.npy')
+import os
+calib_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, 'calibration')
+K = np.load(os.path.join(calib_path, 'K.npy'))
+dist = np.load(os.path.join(calib_path, 'dist.npy'))
 calibrator = Calibrator(K, dist)
 
 
