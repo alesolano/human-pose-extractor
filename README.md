@@ -1,3 +1,6 @@
-# OpenPose Listener
+# Human Pose Extractor
 
-Trying to extract human poses from keypoints.
+Extracting human poses from keypoints.
+Using OpenPose implementation with Mobilenet (fantastic) and inference postprocessing from https://github.com/ildoonet/tf-pose-estimation
+
+Work in progress...

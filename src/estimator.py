@@ -1,3 +1,8 @@
+'''
+Code from https://github.com/ildoonet/tf-pose-estimation
+'''
+
+
 import itertools
 import math
 from collections import namedtuple
