@@ -145,9 +145,10 @@ class Humans():
                 
             if draw_position:
                 try:
-                    distance = self.get_distance_to_camera(human_idx)
+                    #distance = self.get_distance_to_camera(human_idx)
+                    Z = self.get_position(human_idx)[2]
                     coords = self.parts_coords[human_idx][CocoPart.Nose.value]
-                    image_drawn = cv2.putText(image_drawn, "{:.1f} cm".format(distance),
+                    image_drawn = cv2.putText(image_drawn, "{:.1f} cm".format(Z),
                         (int(coords[0]-100), int(coords[1]-100)),
                         cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 0, 0), 5)
                 except Exception as e:
@@ -304,6 +305,7 @@ class Humans():
             try:
                 P = self.get_position(human_idx)
             except:
+                print "Neck undetected for human {}".format(human_idx)
                 continue
 
             #B = self.get_body_orientation(human_idx)

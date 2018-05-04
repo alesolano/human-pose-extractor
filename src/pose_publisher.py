@@ -46,7 +46,9 @@ def callback_humans(human_array):
     posearray_msg = humans.get_poses()
     pub_pose.publish(posearray_msg)
     
-    #frame_humans = humans.draw(draw_position=False, draw_orientation=True)
+    #frame_humans = humans.draw(draw_position=False, draw_orientation=False)
+    #frame_humans = bridge.cv2_to_imgmsg(frame_humans, "bgr8")
+    #pub_frame_humans.publish(frame_humans)
 
     print "Processing time: {:.4f}".format(time.time() - t)
 
@@ -59,6 +61,7 @@ sub_humans = rospy.Subscriber('humans', HumanArray, callback_humans)
 
 from geometry_msgs.msg import PoseArray
 pub_pose = rospy.Publisher('ale/poses', PoseArray, queue_size=100)
+#pub_frame_humans = rospy.Publisher('ale/frame_humans', Image, queue_size=1)
 
 rospy.spin()
 
