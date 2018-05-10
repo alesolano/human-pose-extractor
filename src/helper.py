@@ -296,13 +296,16 @@ class Humans():
         return B
 
 
-    def get_poses(self):
+    def get_users(self):
         from tf.transformations import quaternion_from_euler
-        from geometry_msgs.msg import Pose, PoseArray
-        posearray_msg = PoseArray()
-        posearray_msg.header = self.header
+        from openpose_pkg.msg import User, UserArray
+
+        userarray_msg = UserArray()
+
         for human_idx, human in enumerate(self.humans):
-            pose_msg = Pose()
+            user_msg = User()
+            user_msg.header = self.header
+            #user_msg.certainty = human.certainty
 
             try:
                 P = self.get_position(human_idx)
@@ -316,17 +319,17 @@ class Humans():
             H = self.get_head_orientation(human_idx)
             QH = quaternion_from_euler(*H)
 
-            pose_msg.position.x = P[0]
-            pose_msg.position.y = P[1]
-            pose_msg.position.z = P[2]
-            pose_msg.orientation.x = QH[0]
-            pose_msg.orientation.y = QH[1]
-            pose_msg.orientation.z = QH[2]
-            pose_msg.orientation.w = QH[3]
+            user_msg.pose_3D.position.x = P[0]
+            user_msg.pose_3D.position.y = P[1]
+            user_msg.pose_3D.position.z = P[2]
+            user_msg.pose_3D.orientation.x = QH[0]
+            user_msg.pose_3D.orientation.y = QH[1]
+            user_msg.pose_3D.orientation.z = QH[2]
+            user_msg.pose_3D.orientation.w = QH[3]
 
-            posearray_msg.poses.append(pose_msg)
+            userarray_msg.poses.append(user_msg)
 
-        return posearray_msg
+        return userarray_msg
 
 
 
