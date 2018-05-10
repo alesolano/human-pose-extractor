@@ -221,7 +221,7 @@ class Humans():
 
         assert self.K is not None, "Error: intrinsic matrix K not defined"
 
-        u, v = self.parts_coords[human_idx][CocoPart.Nose.value]
+        v, u = self.parts_coords[human_idx][CocoPart.Nose.value]
         m = np.array([u, v, 1]) # Homogeneous coordinates of the nose
 
         # Extracting camera parameters
