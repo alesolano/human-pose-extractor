@@ -41,8 +41,8 @@ def callback_humans(human_array):
     
     humans = Humans(human_array, frame, header, K)
 
-    posearray_msg = humans.get_poses()
-    pub_pose.publish(posearray_msg)
+    userarray_msg = humans.get_users()
+    pub_user.publish(userarray_msg)
     
     #frame_humans = humans.draw(draw_position=False, draw_orientation=False)
     #frame_humans = bridge.cv2_to_imgmsg(frame_humans, "bgr8")
@@ -57,8 +57,8 @@ def callback_humans(human_array):
 sub_frame = rospy.Subscriber('usb_cam/image_raw', Image, callback_buffer)
 sub_humans = rospy.Subscriber('humans', HumanArray, callback_humans)
 
-from geometry_msgs.msg import PoseArray
-pub_pose = rospy.Publisher('ale/poses', PoseArray, queue_size=100)
+from openpose_pkg.msg import UserArray
+pub_user = rospy.Publisher('ale/users', UserArray, queue_size=100)
 #pub_frame_humans = rospy.Publisher('ale/frame_humans', Image, queue_size=1)
 
 rospy.spin()
