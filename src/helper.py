@@ -183,7 +183,7 @@ class Humans():
         returns:
             distance in cm
         '''
-        k = 14000 # TODO: Get the real 'k' with regression.
+        k = 6000 #14000 # TODO: Get the real 'k' with regression.
         neck_magnitude_pixels = self.pairs_components[human_idx][CocoPair.Neck.value][0]
         
         distance = k * 1./neck_magnitude_pixels

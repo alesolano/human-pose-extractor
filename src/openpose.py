@@ -72,8 +72,8 @@ def callback(frame_ros):
     pub.publish(humanArray_msg)
 
 
-sub = rospy.Subscriber('frame', Image, callback)
-#sub = rospy.Subscriber('usb_cam/image_raw', Image, callback)
+#sub = rospy.Subscriber('frame', Image, callback)
+sub = rospy.Subscriber('usb_cam/image_raw', Image, callback)
 pub = rospy.Publisher('humans', HumanArray, queue_size=1)
 rospy.spin()
 
