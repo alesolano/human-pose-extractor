@@ -10,7 +10,7 @@ import os
 import time
 import numpy as np
 
-rospy.init_node('openpose_humans')
+rospy.init_node('openpose')
 
 bridge = cv_bridge.CvBridge()
 

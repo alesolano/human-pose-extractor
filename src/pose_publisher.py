@@ -8,7 +8,7 @@ import numpy as np
 from openpose_pkg.msg import HumanArray
 from helper import Humans, Calibrator
 
-rospy.init_node('window')
+rospy.init_node('pose_publisher')
 
 bridge = cv_bridge.CvBridge()
 
