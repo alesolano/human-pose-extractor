@@ -5,7 +5,7 @@ from sensor_msgs.msg import Image
 import cv2, cv_bridge
 
 import numpy as np
-from robot.msg import HumanArray
+from openpose_pkg.msg import HumanArray
 from helper import Humans, Calibrator
 
 rospy.init_node('window')

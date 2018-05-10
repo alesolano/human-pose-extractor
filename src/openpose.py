@@ -4,7 +4,7 @@ import rospy
 
 import cv_bridge
 from sensor_msgs.msg import Image
-from robot.msg import BodyPart, Human, HumanArray
+from openpose_pkg.msg import BodyPart, Human, HumanArray
 
 import os
 import time
