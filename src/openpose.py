@@ -44,6 +44,7 @@ def humans_to_msg(humans):
     for human in humans:
         human_msg = Human()
 
+        part_scores = []
         for body_part in human.body_parts.values():
             bodyPart_msg = BodyPart()
             bodyPart_msg.idx = body_part.part_idx
@@ -51,8 +52,11 @@ def humans_to_msg(humans):
             bodyPart_msg.y_percent = body_part.y
             bodyPart_msg.score = body_part.score
             
+            part_scores.append(body_part.score)
+
             human_msg.parts.append(bodyPart_msg)
         
+        human_msg.certainty = np.mean(part_scores)/10
         humanArray_msg.humans.append(human_msg)
 
     return humanArray_msg

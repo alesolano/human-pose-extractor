@@ -78,6 +78,8 @@ class Humans():
         # Vector components (magnitude and direction) of all pairs detected, ordered by humans
         # List of humans. Each human is a dictionary of pairs. Each pair is a tuple of magnitude and direction
         self.pairs_components = []
+
+        self.certainties = []
         
         self.image = frame
         self.image_h = frame.shape[0]
@@ -98,6 +100,7 @@ class Humans():
             # Append a dictionary for each human detected
             self.parts_coords.append({})
             self.pairs_components.append({})
+            self.certainties.append(human.certainty)
             
             for part in human.parts:
                 x = int(part.x_percent * self.image_w + 0.5)
@@ -305,7 +308,7 @@ class Humans():
         for human_idx, human in enumerate(self.humans):
             user_msg = User()
             user_msg.header = self.header
-            #user_msg.certainty = human.certainty
+            user_msg.certainty = certainties[human_idx]
 
             try:
                 P = self.get_position(human_idx)
