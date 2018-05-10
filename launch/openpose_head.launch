@@ -1,0 +1,4 @@
+<launch>
+    <node name="openpose" pkg="openpose_pkg" type="openpose" />
+    <node name="pose_publisher" pkg="openpose_pkg" type="pose_publisher" />
+</launch>
