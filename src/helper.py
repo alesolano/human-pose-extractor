@@ -308,7 +308,7 @@ class Humans():
         for human_idx, human in enumerate(self.humans):
             user_msg = User()
             user_msg.header = self.header
-            user_msg.certainty = certainties[human_idx]
+            user_msg.certainty = self.certainties[human_idx]
 
             try:
                 P = self.get_position(human_idx)
@@ -330,7 +330,7 @@ class Humans():
             user_msg.pose_3D.orientation.z = QH[2]
             user_msg.pose_3D.orientation.w = QH[3]
 
-            userarray_msg.poses.append(user_msg)
+            userarray_msg.users.append(user_msg)
 
         return userarray_msg
 
