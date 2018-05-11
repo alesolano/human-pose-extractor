@@ -263,7 +263,7 @@ class Humans():
         #print "Neck angle: {}".format(neck_angle)
 
         bins = np.array([-120, -90, -60, -30, 0, 30, 60, 90, 120])
-        neck_angle = bins[np.digitize(neck_angle - 15, bins)]
+        neck_angle = bins[np.digitize(neck_angle - 15, bins)-1]
         return neck_angle
 
 
@@ -283,7 +283,7 @@ class Humans():
         back_angle = -np.sign(neck_angle+0.1)*np.rad2deg(back_mag/neck_mag - back_k*np.pi/2)
 
         bins = np.array([-120, -90, -60, -30, 0, 30, 60, 90, 120])
-        back_angle = bins[np.digitize(back_angle - 15, bins)]
+        back_angle = bins[np.digitize(back_angle - 15, bins)-1]
 
         return back_angle
 
@@ -304,10 +304,10 @@ class Humans():
         from openpose_pkg.msg import User, UserArray
 
         userarray_msg = UserArray()
+        userarray_msg.header = self.header
 
         for human_idx, human in enumerate(self.humans):
             user_msg = User()
-            user_msg.header = self.header
             user_msg.certainty = self.certainties[human_idx]
 
             try:

@@ -1,5 +1,3 @@
-Header header
-
 # Name of the user (if recognized)
 string name
 
