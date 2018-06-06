@@ -6,6 +6,16 @@ import cv_bridge
 from sensor_msgs.msg import Image
 from openpose_pkg.msg import BodyPart, Human, HumanArray
 
+from openpose_pkg.srv import ChangeDetect, ChangeDetectResponse
+
+detect_humans = False
+def change_detect(req):
+    global detect_humans
+    detect_humans = not detect_humans
+    return ChangeDetectResponse()
+
+service = rospy.Service('change_detect', ChangeDetect, change_detect)
+
 import os
 import time
 import numpy as np
@@ -67,13 +77,15 @@ def callback(frame_ros):
     frame_cv = calibrator.undistort(frame_cv)
     
     t = time.time()
-    humans = openpose.inference(frame_cv, scales=[None])
-    print "Inference time: {}".format(time.time() - t)
 
-    humanArray_msg = humans_to_msg(humans)
-    humanArray_msg.header = frame_ros.header
+    if detect_humans:
+        humans = openpose.inference(frame_cv, scales=[None])
+        print "Inference time: {}".format(time.time() - t)
 
-    pub.publish(humanArray_msg)
+        humanArray_msg = humans_to_msg(humans)
+        humanArray_msg.header = frame_ros.header
+
+        pub.publish(humanArray_msg)
 
 
 #sub = rospy.Subscriber('frame', Image, callback)
